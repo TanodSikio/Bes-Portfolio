@@ -39,11 +39,11 @@ export default function Home() {
       {/* Portfolio Grid Layout */}
       <div className="w-full h-161 grid grid-cols-3 gap-2 place-items-center">
         {projects.map((project, index) => (
-          <div 
+          <div
             key={index}
             className="relative overflow-hidden border border-black rounded-xl w-90 h-60 flex hover:cursor-pointer transition-all duration-200 ease-out hover:-translate-y-2 hover:shadow-xl"
           >
-            <Image 
+            <Image
               alt={project.alt}
               src={project.src}
               fill
