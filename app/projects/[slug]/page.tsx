@@ -1,11 +1,20 @@
 import { notFound } from "next/navigation";
-import { getProject } from "@/lib/projects";
+import { fetchProject } from "@/lib/api";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export const dynamic = "force-dynamic";
+
 export default async function Projectpage({ params }: Props){
     const { slug } = await params;
-    const project = await getProject(slug);
-    if(!project) notFound();
+    let project;
+    try{
+        project = await fetchProject(slug);
+    }catch(e){
+        if(e instanceof Error && e.message === "404") notFound();
+        throw e;
+    }
+
     return(
         <main className="px-16 py-8">
             <h1 className="text-4xl font-bold">{project.title}</h1>
