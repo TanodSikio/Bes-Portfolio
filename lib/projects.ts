@@ -1,33 +1,27 @@
 import "server-only";
+import { db } from "@/db";
+import { projects } from "@/db/schema";
+import { eq, desc } from "drizzle-orm";
 
-export type Project = {
-  slug: string;
-  title: string;
-  year: number;
-  summary: string;
-};
+export type Project = typeof projects.$inferSelect;
 
 export type Stats = { total: number; newest: number; oldest: number };
 
-export const PROJECTS: Project[] = [
-    { slug: "store-ledger", title: "Store Ledger", year: 2025,
-        summary: "Records store credit instead of a paper notebook." },
-    { slug: "org-checkin", title: "Org Check In", year: 2026,
-        summary: "Scans members in at the door with a QR code." },
-    { slug: "barangay-reports", title: "Barangay Reports", year: 2026,
-        summary: "Lets residents pin a broken streetlight on a map." },
-];
-
-export async function readProjects(){
-    return PROJECTS;
+export async function readProjects() {
+    return db.select().from(projects).orderBy(desc(projects.year));
 }
 
-export async function readProject(slug: string){
-    return PROJECTS.find((p) => p.slug === slug) ?? null;
+export async function readProject(slug: string) {
+    const [project] = await db.select().from(projects).where(eq(projects.slug, slug));
+    return project ?? null;
 }
 
 export async function readStats(): Promise<Stats> {
-    await new Promise((go) => setTimeout(go, 2000));
-    const years = PROJECTS.map((p) => p.year);
-    return { total: PROJECTS.length, newest: Math.max(...years), oldest: Math.min(...years) };
+    const all = await db.select().from(projects);
+    const years = all.map((p) => p.year);
+    return {
+        total: all.length,
+        newest: years.length ? Math.max(...years) : 0,
+        oldest: years.length ? Math.min(...years) : 0,
+    };
 }
